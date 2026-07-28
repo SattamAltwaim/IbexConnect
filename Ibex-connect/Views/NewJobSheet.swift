@@ -332,7 +332,8 @@ struct NewJobSheet: View {
             hours: hours,
             memoryGB: memoryGB,
             cpus: cpus,
-            command: command
+            command: command,
+            token: JobConfig.newToken()
         )
         Task {
             do {

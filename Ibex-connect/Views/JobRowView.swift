@@ -174,14 +174,24 @@ struct JobRow: View {
         if job.kind == .jupyter {
             if let link = job.jupyterLink {
                 VStack(alignment: .trailing, spacing: 4) {
-                    Text("localhost:\(job.localPort.map(String.init) ?? "")")
-                        .font(.system(size: 12, weight: .medium, design: .monospaced))
+                    HStack(spacing: 4) {
+                        Image(systemName: "lock.fill")
+                            .font(.system(size: 9))
+                            .foregroundStyle(.tertiary)
+                        Text("localhost:\(job.localPort.map(String.init) ?? "")")
+                            .font(.system(size: 12, weight: .medium, design: .monospaced))
+                    }
+                    .help("Typing this address alone will not work — the link carries an access token. Use Copy Link.")
+
+                    Text("needs the token — use Copy Link")
+                        .font(.system(size: 9))
+                        .foregroundStyle(.tertiary)
 
                     HStack(spacing: 6) {
                         Button {
                             NSPasteboard.general.clearContents()
                             NSPasteboard.general.setString(link, forType: .string)
-                            vm.statusMessage = "Link copied — in VS Code, run “Jupyter: Specify Jupyter Server for Connections” and paste it"
+                            vm.statusMessage = "Link copied with its access token — in VS Code run “Jupyter: Specify Jupyter Server for Connections” and paste the whole thing"
                         } label: {
                             Text("Copy Link")
                                 .font(.system(size: 10, weight: .semibold))
@@ -191,7 +201,7 @@ struct JobRow: View {
                         .padding(.vertical, 3)
                         .background(Color.primary.opacity(0.06))
                         .clipShape(RoundedRectangle(cornerRadius: 4))
-                        .help("Copy the full link (with its access token) — paste it into a browser or into VS Code's “Jupyter: Specify Jupyter Server for Connections”")
+                        .help("Copy the full link including its access token — paste it into a browser, or into VS Code's “Jupyter: Specify Jupyter Server for Connections”. Without the token every request is rejected with 403.")
 
                         Button {
                             if let url = URL(string: link) {

@@ -79,9 +79,16 @@ nonisolated struct JobConfig: Sendable {
     let cpus: Int
     /// Shell command(s) to run — batch jobs only.
     let command: String
+    /// Access token handed to Jupyter, so the app knows it without having to
+    /// scrape it back out of the server's log.
+    let token: String
 
     var timeLimit: String {
         String(format: "%d:00:00", hours)
+    }
+
+    static func newToken() -> String {
+        (0..<24).map { _ in String(format: "%02x", UInt8.random(in: 0...255)) }.joined()
     }
 }
 
@@ -93,6 +100,8 @@ nonisolated struct JobRecord: Codable, Sendable {
     let gpuType: String
     let gpuCount: Int
     let submittedAt: Date
+    /// Kept so a session stays reachable after the app restarts.
+    var token: String?
 }
 
 @Observable
@@ -167,6 +176,7 @@ final class Job: Identifiable {
             submittedByApp: true
         )
         self.timeLimit = config.timeLimit
+        self.token = config.token
     }
 
     convenience init(record: JobRecord) {
@@ -179,6 +189,7 @@ final class Job: Identifiable {
             submittedAt: record.submittedAt,
             submittedByApp: true
         )
+        self.token = record.token
     }
 
     var record: JobRecord {
@@ -188,7 +199,8 @@ final class Job: Identifiable {
             name: name,
             gpuType: gpuType,
             gpuCount: gpuCount,
-            submittedAt: submittedAt ?? Date()
+            submittedAt: submittedAt ?? Date(),
+            token: token
         )
     }
 }

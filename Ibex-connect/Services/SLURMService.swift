@@ -232,8 +232,27 @@ actor SLURMService {
                 exit 1
             fi
 
-            echo "[ibex-connect] Starting Jupyter on $(hostname)..."
-            jupyter notebook --no-browser --ip=0.0.0.0 --port=8888 2>&1 | while IFS= read -r line; do
+            # The app supplies the token so it can build the link itself rather
+            # than scraping it back out of the log. Without a token every API
+            # call returns 403, which is what makes VS Code report the server as
+            # unreachable, so it must always be set.
+            SERVER_TOKEN='\(config.token)'
+
+            # Prefer JupyterLab: it runs on jupyter_server 2, which is what VS
+            # Code and a modern jupyterlab install expect. Classic Notebook 6 is
+            # the fallback, and loads jupyterlab as an extension that crashes.
+            start_jupyter() {
+                if jupyter lab --version >/dev/null 2>&1; then
+                    echo "[ibex-connect] Starting JupyterLab on $(hostname)..." >&2
+                    exec jupyter lab --no-browser --ip=0.0.0.0 --port=8888 \\
+                        --ServerApp.token="$SERVER_TOKEN"
+                fi
+                echo "[ibex-connect] Starting classic Notebook on $(hostname)..." >&2
+                exec jupyter notebook --no-browser --ip=0.0.0.0 --port=8888 \\
+                    --NotebookApp.token="$SERVER_TOKEN"
+            }
+
+            start_jupyter 2>&1 | while IFS= read -r line; do
                 echo "$line"
                 case "$line" in
                     *http://*[?\\&]token=*)

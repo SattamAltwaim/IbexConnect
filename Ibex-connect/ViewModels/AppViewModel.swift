@@ -340,7 +340,9 @@ final class AppViewModel {
             }
 
             job.remotePort = session.port
-            job.token = session.token
+            // Ours is authoritative when we submitted the job; jobs adopted from
+            // the queue only have whatever the server printed.
+            if job.token == nil { job.token = session.token }
             job.setupStage = "Opening the tunnel…"
 
             var lastError: String?
