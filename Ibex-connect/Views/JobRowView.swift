@@ -203,6 +203,20 @@ struct JobRow: View {
                         .clipShape(RoundedRectangle(cornerRadius: 4))
                         .help("Copy the full link including its access token — paste it into a browser, or into VS Code's “Jupyter: Specify Jupyter Server for Connections”. Without the token every request is rejected with 403.")
 
+                        if let token = job.token, !token.isEmpty {
+                            Button {
+                                NSPasteboard.general.clearContents()
+                                NSPasteboard.general.setString(token, forType: .string)
+                                vm.statusMessage = "Token copied — paste it if VS Code asks for a password"
+                            } label: {
+                                Text("Token")
+                                    .font(.system(size: 10, weight: .medium))
+                            }
+                            .buttonStyle(.plain)
+                            .foregroundStyle(.secondary)
+                            .help("Copy just the token. If VS Code prompts for a password for this server, paste this — Jupyter accepts the token there.")
+                        }
+
                         Button {
                             if let url = URL(string: link) {
                                 NSWorkspace.shared.open(url)
