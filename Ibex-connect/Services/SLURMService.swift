@@ -221,6 +221,15 @@ actor SLURMService {
             module load python/3.11.0 2>/dev/null || module load python/3.9.16 2>/dev/null || true
             export PATH="$HOME/.local/bin:$PATH"
 
+            # The python module exports a PYTHONPATH containing its own stdlib.
+            # Kernels inherit the server's environment, so a kernel running a
+            # different interpreter (a conda env, say) imports that stdlib on top
+            # of its own and dies before it can talk to the server — which the
+            # client reports as the kernel failing to start. The server itself
+            # does not need it: the module interpreter finds its own stdlib and
+            # ~/.local without help.
+            unset PYTHONPATH
+
             # Actually run jupyter rather than just looking for the file: the
             # launcher sits on a shared home and stays present even when the
             # interpreter behind it can't start (e.g. no python module loaded).
