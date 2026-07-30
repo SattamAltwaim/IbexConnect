@@ -247,18 +247,29 @@ actor SLURMService {
             # unreachable, so it must always be set.
             SERVER_TOKEN='\(config.token)'
 
+            # Pass it by environment, not on the command line: a compute node is
+            # shared, and argv is world-readable through /proc. Both
+            # jupyter_server and classic Notebook read JUPYTER_TOKEN.
+            export JUPYTER_TOKEN="$SERVER_TOKEN"
+
+            # Record it where the app can always find it. A token the app
+            # supplied is deliberately NOT printed by jupyter_server — the log
+            # shows "token=..." — so this file is the only way to recover the
+            # session if the app loses its own copy or adopts the job later.
+            chmod 700 "$STATUSDIR" 2>/dev/null || true
+            printf '%s' "$SERVER_TOKEN" > "$STATUSDIR/token.txt"
+            chmod 600 "$STATUSDIR/token.txt"
+
             # Prefer JupyterLab: it runs on jupyter_server 2, which is what VS
             # Code and a modern jupyterlab install expect. Classic Notebook 6 is
             # the fallback, and loads jupyterlab as an extension that crashes.
             start_jupyter() {
                 if jupyter lab --version >/dev/null 2>&1; then
                     echo "[ibex-connect] Starting JupyterLab on $(hostname)..." >&2
-                    exec jupyter lab --no-browser --ip=0.0.0.0 --port=8888 \\
-                        --ServerApp.token="$SERVER_TOKEN"
+                    exec jupyter lab --no-browser --ip=0.0.0.0 --port=8888
                 fi
                 echo "[ibex-connect] Starting classic Notebook on $(hostname)..." >&2
-                exec jupyter notebook --no-browser --ip=0.0.0.0 --port=8888 \\
-                    --NotebookApp.token="$SERVER_TOKEN"
+                exec jupyter notebook --no-browser --ip=0.0.0.0 --port=8888
             }
 
             start_jupyter 2>&1 | while IFS= read -r line; do
@@ -310,6 +321,15 @@ actor SLURMService {
     func readJupyterSession(jobID: String) async throws -> (port: Int, token: String?)? {
         let content = try await ssh.readRemoteFile(remotePath: "\(config.statusDir(jobID: jobID))/url.txt")
         return Self.parseJupyterURL(content)
+    }
+
+    /// Reads the token the job script recorded. This is the only reliable
+    /// source for a job the app didn't submit, or after it lost its own copy:
+    /// a supplied token never appears in the server's log.
+    func readToken(jobID: String) async -> String? {
+        let content = try? await ssh.readRemoteFile(remotePath: "\(config.statusDir(jobID: jobID))/token.txt")
+        guard let content, !content.isEmpty, content.allSatisfy(\.isHexDigit) else { return nil }
+        return content
     }
 
     func sessionFailed(jobID: String) async -> Bool {

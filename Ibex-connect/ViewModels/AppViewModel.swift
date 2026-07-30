@@ -340,9 +340,17 @@ final class AppViewModel {
             }
 
             job.remotePort = session.port
-            // Ours is authoritative when we submitted the job; jobs adopted from
-            // the queue only have whatever the server printed.
-            if job.token == nil { job.token = session.token }
+            // Ours is authoritative when we submitted the job. Otherwise fall
+            // back to the file the job script wrote, then to whatever the
+            // server printed — a supplied token is logged as "token=...", so
+            // parsing the log alone is not enough.
+            if job.token == nil {
+                job.token = await self.slurmService.readToken(jobID: job.id) ?? session.token
+            }
+            if job.token == nil {
+                job.tunnelError = "No access token found for this session, so the link will not authenticate. "
+                    + "It was most likely started by an older build — resubmit to get a working link."
+            }
             job.setupStage = "Opening the tunnel…"
 
             var lastError: String?
