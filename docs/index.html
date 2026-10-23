@@ -103,7 +103,7 @@
   /* Features */
   .features { display: grid; grid-template-columns: repeat(4, 1fr); gap: 48px 20px; padding: 88px 0 24px; }
   .feature { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; }
-  .feature pre { margin: 0; font-size: 5.5px; line-height: 1.15; font-weight: 700; color: var(--ink); height: 130px; display: flex; align-items: center; }
+  .feature .icon { width: 56px; height: 56px; object-fit: contain; display: block; }
   .feature h2 { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; margin: 0; }
   .feature p { margin: -6px 0 0; font-size: 12px; color: var(--ink-2); max-width: 230px; }
 
@@ -184,190 +184,42 @@
 
   <section class="features" id="features">
     <div class="feature">
-      <pre aria-hidden="true">                                  -+**+:
-                   .....         .@@@@@%
-.*%%*.     .-=*#%%@@@@@@@@%#*+-:  .=++=.
- +##*.  -*%@@@@@@@@@@@@@@@@@@@@@@#=:
-     :*@@@%#*+==--:::::::---=+*#%@@@#=
-   .*%*=:.                        :-+#%-
-  .=:                                 .--
-
-
-
-
-
-  .-                                   .-
-   :#*=:.                          :-+%+
-     -#@@%#*+=-::..     ...::-=+*#@@@+.
-       :+#@@@@@@@@@@@@@@@@@@@@@@@%*-
-     .:.  .-=*#%@@@@@@@@@@@@%#+-:
-  :#@@@@%+       .::---:::.
-  +@@@@@@@.
-   -+***=.</pre>
+      <img class="icon" src="assets/icons/jupyter.png" alt="Jupyter" width="56" height="56" loading="lazy">
       <h2>Jupyter in<br>one click</h2>
       <p>Pick GPUs and a time limit. The app submits, waits for the node, opens the tunnel, and hands you a <span class="mono">localhost</span> link with its token.</p>
     </div>
     <div class="feature">
-      <pre aria-hidden="true">                        .:=+++-::--==+*
-                   .-+#%@@@@@*
-                :+#@@@@@@@@@%*.::..
-             :+%@@@@@@#*=-.. -@@@@@%#*=
-          .=%@@@@@%*-.       -@@@@@@@@@
-        :*@@@@@@*-           -@%%@@@@@@
-      -#@@@@@@+.        :=+#%*     :-+#
-    -#@@@@@@*.      .=*@@@@@@*
-  :#@@@@@@%:      -*@@@@@@%#*+:
-.*@@@@@@@*      -#@@@@@%=.   -@@#=.
-+@@@@@@@+     :#@@@@@%-      -@@@@%-
- %@@@@@@#     =@@@@@%        -@@@@@@-
- :@@@@@@@=     %@@@@@:       -@@@@@@@-
-  =@@@@@@@:    :@@@@@%.      -@@@@@@@@-
-   +@@@@@@%.    -@@@@@#      -@@@@@@@@@
-    +@@@@@@#.    =@@@@@#.    -@@@@@@@@@
-     +@@@@@@#.    -%@@@@%-   -@@@@@@@@@
-      =@@@@@@%.    .*@@@@@#=.-@@@@@@@@@
-       -%@@@@@%-     -#@@@@@@*=+***+=:
-        .#@@@@@@*.     :+%@@@*
-          =%@@@@@%=.      :=++:.. ..:-+
-           .+@@@@@@%+.       -@@@@@@@@@
-             .*@@@@@@@#=:    -@@@@@@@@@
-               .=%@@@@@@@%#+==*####**+=
-                  :+%@@@@@@@@*
-                     .-+#%@@@*</pre>
+      <img class="icon" src="assets/icons/nvidia.png" alt="NVIDIA" width="56" height="56" loading="lazy">
       <h2>Free GPUs<br>at a glance</h2>
       <p>Every GPU type on Ibex with how many are free right now, refreshed every 30 seconds.</p>
     </div>
     <div class="feature">
-      <pre aria-hidden="true">                  :*##*-
-              ..  -####=  ..
-             =###. -==-. ###+
-         -=- :++= -####- =++- -=-
-         =++ -*** -####- +**= =++
-         =+= -***  -==-  ***= =++
-     :*- -=- :=== -####- ===: -=- -*-
-     .=: +#* =###.:####- ###+ +#* :=:
-  :+ :+- :-:  ...        ...  :-: -+: +-
-         -%=
- .:::::. =@+ .:    .:   .:::  ..::::::::.
--@#****= =@+ #@:   *@: %@***:-@%**#@#**%@-
-=@#====- =@+ #@:   *@: @%    -@+  -@=  =@=
- ::::-@# =@+ #@:   *@: @%    -@+  -@=  =@=
--####%%+ -%= +%%###%#. %#    -%+  -%=  =%=
-
-. :.:.::.-.-:.:.:::.- ::.::::::.:-:.::.::
-..:::.:: :.::.::.::.. :. ::.:..:.:::-::..</pre>
+      <img class="icon" src="assets/icons/slurm.png" alt="Slurm" width="56" height="56" loading="lazy">
       <h2>Batch jobs,<br>queue explained</h2>
       <p>GPUs, time, memory, CPUs, a command. While it waits, the queue reason in plain words instead of Slurm's.</p>
     </div>
     <div class="feature">
-      <pre aria-hidden="true">  .=++++++++++++++++++++++++++++++++++=.
- *@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*
--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
--@@@@@@+-=#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@=
--@@@@@@#=: .-*@@@@@@@@@@@@@@@@@@@@@@@@@@@=
--@@@@@@@@@%-  .@@@@@@@@@@@@@@@@@@@@@@@@@@=
--@@@@@@%+-  :+%@@@@@@@@@@@@@@@@@@@@@@@@@@=
--@@@@@@=.-*%@@@+::::::::#@@@@@@@@@@@@@@@@=
--@@@@@@@@@@@@@@%********@@@@@@@@@@@@@@@@@=
--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@=
--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@=
--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@=
--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@=
--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
- *@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*
-  .=++++++++++++++++++++++++++++++++++=.</pre>
+      <img class="icon" src="assets/icons/terminal.png" alt="Terminal" width="56" height="56" loading="lazy">
       <h2>Live output<br>as it runs</h2>
       <p>Your job's stdout and stderr stream into the app. No more hunting for <span class="mono">slurm-123456.out</span>.</p>
     </div>
     <div class="feature">
-      <pre aria-hidden="true">                            :+*+-.
-                          -#@@@@@@%*=:
-                       .=%@@@@@@@@@@@@@#=
-                     :*@@@@@@@@@@@@@@@@@@-
-                   -#@@@@@@@@@@@@@@@@@@@@=
-  =#@%=.        .=%@@@@@@@@@@@#%@@@@@@@@@=
-:%@@@@@@#=.   .+%@@@@@@@@@@%+: #@@@@@@@@@=
- =%@@@@@@@@*=*@@@@@@@@@@%+:    #@@@@@@@@@=
-   -#@@@@@@@@@@@@@@@@@*-       #@@@@@@@@@=
-     :*@@@@@@@@@@@@#=.         #@@@@@@@@@=
-     :*@@@@@@@@@@@@#=.         #@@@@@@@@@=
-   -#@@@@@@@@@@@@@@@@@*-       #@@@@@@@@@=
- =%@@@@@@@@*=*@@@@@@@@@@%+:    #@@@@@@@@@=
-:%@@@@@@#=.   .+%@@@@@@@@@@%+: #@@@@@@@@@=
-  -#@#=.         =%@@@@@@@@@@@#%@@@@@@@@@=
-                   -*@@@@@@@@@@@@@@@@@@@@=
-                     :+@@@@@@@@@@@@@@@@@@-
-                       .=%@@@@@@@@@@@@%*=
-                          -#@@@@@@%*=:
-                            :+*+-.</pre>
+      <img class="icon" src="assets/icons/vscode.png" alt="Visual Studio Code" width="56" height="56" loading="lazy">
       <h2>Paste the link<br>into VS Code</h2>
       <p>The Jupyter link works in a browser or as a remote server in VS Code; a Copy Token button covers its password prompt.</p>
     </div>
     <div class="feature">
-      <pre aria-hidden="true">  =*##%%%%##+:
-.%@@@@@@@@@@@@%+-:::::::::::::::::::::.
--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#-
--@@@#++++++++++++++++++++++++++++++++#@@@:
--@@@..................................@@@-
--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
- #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#
-  -+##################################*-</pre>
+      <img class="icon" src="assets/icons/folder.png" alt="Folder" width="56" height="56" loading="lazy">
       <h2>Upload files<br>to your home</h2>
       <p>Copy a file or a folder from your Mac to Ibex from the toolbar.</p>
     </div>
     <div class="feature">
-      <pre aria-hidden="true">          -=+*##*+=-
-       :*@@@@####@@@@*:
-      *@@%=:      :=%@@*
-     #@@#.          .#@@#
-    -@@@.            .%@@-
-    +@@#              #@@+
-    +@@#              #@@+
-    +@@#              #@@+
-  =*%@@@##############@@@%*=
- #@@@@@@@@@@@@@@@@@@@@@@@@@@#
-.@@@@@@@@@@@@@@@@@@@@@@@@@@@@.
-:@@@@@@@@@@@@@@@@@@@@@@@@@@@@:
-:@@@@@@@@@@@@@@@@@@@@@@@@@@@@:
-:@@@@@@@@@@@@@@@@@@@@@@@@@@@@:
-:@@@@@@@@@@@@@@@@@@@@@@@@@@@@:
-:@@@@@@@@@@@@@@@@@@@@@@@@@@@@:
-:@@@@@@@@@@@@@@@@@@@@@@@@@@@@:
-.@@@@@@@@@@@@@@@@@@@@@@@@@@@@.
- #@@@@@@@@@@@@@@@@@@@@@@@@@@#
-  -+**********************+-</pre>
+      <img class="icon" src="assets/icons/passwords.png" alt="Passwords" width="56" height="56" loading="lazy">
       <h2>Password or key,<br>kept in your Keychain</h2>
       <p>Sign in with your KAUST password, remembered in the macOS Keychain, or with an SSH key registered on Ibex.</p>
     </div>
     <div class="feature">
-      <pre aria-hidden="true">            .-=+**+=-.
-      .:=*#@@@@@@%@@@@%#+=:.
- .-+*%@@@@@@@@@@@= :=+#%@@@@%*+-.
-=@@@@@@@@@@@@@@@@=      .:=*#%@@@=
-#@@@@@@@@@@@@@@@@=            +@@#
-#@@@@@@@@@@@@@@@@=            =@@#
-#@@@@@@@@@@@@@@@@=            =@@#
-#@@@@@@@@@@@@@@@@=            =@@#
-#@@@@@@@@@@@@@@@@=            =@@#
-#@@@@@@@@@@@@@@@@=            =@@#
-#@@@@@@@@@@@@@@@@=            =@@#
-#@@@@@@@@@@@@@@@@=            =@@#
-*@@@@@@@@@@@@@@@@=            *@@*
-:@@@@@@@@@@@@@@@@=           -@@@:
- =@@@@@@@@@@@@@@@=         :*@@@=
-  .*@@@@@@@@@@@@@=      .=#@@@*:
-    .+%@@@@@@@@@@=   :=#@@@%+.
-       :+#@@@@@@@=-+%@@@#+:
-          .=*%@@@@@@%*=.
-              :=**=:</pre>
+      <img class="icon" src="assets/icons/cisco.png" alt="Cisco Secure Client" width="56" height="56" loading="lazy">
       <h2>Knows when<br>you're off the VPN</h2>
       <p>If sign-in fails the app says why: no VPN, wrong password, unregistered key, changed host key, and what to do about it.</p>
     </div>
@@ -389,7 +241,7 @@
       <a href="https://github.com/SattamAltwaim/IbexConnect/issues">Report a problem</a>
       <a href="https://x.com/SattamAltwaim">X</a>
     </div>
-    <p>A personal project, not affiliated with KAUST. Jupyter, NVIDIA, Slurm and Visual Studio Code are trademarks of their owners.</p>
+    <p>A personal project, not affiliated with KAUST. App icons and logos belong to their owners.</p>
   </footer>
 </div>
 <div class="wordmark" aria-hidden="true">IbexConnect</div>
