@@ -72,7 +72,7 @@
 
   /* Window mock */
   .window {
-    margin-top: 48px;
+    margin: 48px auto 0; max-width: 900px;
     border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
     background: var(--bg);
     box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.25);
@@ -84,9 +84,9 @@
   .titlebar .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--fill-2); }
   .titlebar .title { margin-left: 6px; font-size: 12px; font-weight: 600; color: var(--ink-2); }
   .panes { display: grid; grid-template-columns: 1fr 1fr; }
-  .pane-art { background: var(--panel); display: flex; align-items: center; justify-content: center; padding: 32px 16px; min-height: 380px; }
-  .pane-art pre { margin: 0; font-size: 8.5px; line-height: 1.15; font-weight: 900; color: var(--ink); user-select: none; }
-  .pane-form { padding: 40px 40px; display: flex; flex-direction: column; gap: 14px; justify-content: center; }
+  .pane-art { background: var(--panel); display: flex; align-items: center; justify-content: center; padding: 32px 16px; min-height: 520px; }
+  .pane-art pre { margin: 0; font-size: 10.5px; line-height: 1.15; font-weight: 900; color: var(--ink); user-select: none; }
+  .pane-form { padding: 48px 56px; display: flex; flex-direction: column; gap: 18px; justify-content: center; }
   .pane-form .h { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
   .pane-form .s { font-size: 12px; color: var(--ink-2); font-weight: 500; margin-top: 2px; }
   .lbl { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; color: var(--ink-3); text-transform: uppercase; margin-bottom: 5px; }
@@ -104,8 +104,7 @@
   .features { display: grid; grid-template-columns: repeat(4, 1fr); gap: 48px 20px; padding: 88px 0 24px; }
   .feature { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; }
   .feature .icon { width: 56px; height: 56px; object-fit: contain; display: block; }
-  .feature h2 { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; margin: 0; }
-  .feature p { margin: -6px 0 0; font-size: 12px; color: var(--ink-2); max-width: 230px; }
+  .feature h2 { font-size: 19px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; margin: 0; }
 
   /* CTA */
   .cta { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 72px 0 40px; text-align: center; }
@@ -186,42 +185,34 @@
     <div class="feature">
       <img class="icon" src="assets/icons/jupyter.png" alt="Jupyter" width="56" height="56" loading="lazy">
       <h2>Jupyter in<br>one click</h2>
-      <p>Pick GPUs and a time limit. The app submits, waits for the node, opens the tunnel, and hands you a <span class="mono">localhost</span> link with its token.</p>
     </div>
     <div class="feature">
       <img class="icon" src="assets/icons/nvidia.png" alt="NVIDIA" width="56" height="56" loading="lazy">
       <h2>Free GPUs<br>at a glance</h2>
-      <p>Every GPU type on Ibex with how many are free right now, refreshed every 30 seconds.</p>
     </div>
     <div class="feature">
       <img class="icon" src="assets/icons/slurm.png" alt="Slurm" width="56" height="56" loading="lazy">
       <h2>Batch jobs,<br>queue explained</h2>
-      <p>GPUs, time, memory, CPUs, a command. While it waits, the queue reason in plain words instead of Slurm's.</p>
     </div>
     <div class="feature">
       <img class="icon" src="assets/icons/terminal.png" alt="Terminal" width="56" height="56" loading="lazy">
       <h2>Live output<br>as it runs</h2>
-      <p>Your job's stdout and stderr stream into the app. No more hunting for <span class="mono">slurm-123456.out</span>.</p>
     </div>
     <div class="feature">
       <img class="icon" src="assets/icons/vscode.png" alt="Visual Studio Code" width="56" height="56" loading="lazy">
       <h2>Paste the link<br>into VS Code</h2>
-      <p>The Jupyter link works in a browser or as a remote server in VS Code; a Copy Token button covers its password prompt.</p>
     </div>
     <div class="feature">
-      <img class="icon" src="assets/icons/folder.png" alt="Folder" width="56" height="56" loading="lazy">
-      <h2>Upload files<br>to your home</h2>
-      <p>Copy a file or a folder from your Mac to Ibex from the toolbar.</p>
+      <img class="icon" src="assets/icons/finder.png" alt="Finder" width="56" height="56" loading="lazy">
+      <h2>Upload files<br>to Ibex</h2>
     </div>
     <div class="feature">
       <img class="icon" src="assets/icons/passwords.png" alt="Passwords" width="56" height="56" loading="lazy">
-      <h2>Password or key,<br>kept in your Keychain</h2>
-      <p>Sign in with your KAUST password, remembered in the macOS Keychain, or with an SSH key registered on Ibex.</p>
+      <h2>Password or<br>SSH key</h2>
     </div>
     <div class="feature">
       <img class="icon" src="assets/icons/cisco.png" alt="Cisco Secure Client" width="56" height="56" loading="lazy">
       <h2>Knows when<br>you're off the VPN</h2>
-      <p>If sign-in fails the app says why: no VPN, wrong password, unregistered key, changed host key, and what to do about it.</p>
     </div>
   </section>
 
