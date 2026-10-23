@@ -4,12 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>IbexConnect</title>
-<meta name="description" content="GPU jobs on KAUST's Ibex cluster, from your Mac. Free GPUs at a glance, Jupyter in one click, and the SSH tunnel handled for you.">
-<link rel="icon" href="assets/ibex.png">
+<meta name="description" content="GPU jobs on KAUST's Ibex cluster, without the terminal. Free GPUs at a glance, Jupyter in one click, the SSH tunnel handled for you.">
+<link rel="icon" href="assets/icon.png">
+<meta property="og:title" content="IbexConnect">
+<meta property="og:description" content="GPU jobs on KAUST's Ibex cluster, without the terminal.">
+<meta property="og:image" content="https://sattamaltwaim.github.io/IbexConnect/assets/icon@2x.png">
 <style>
   :root {
     --bg: #ffffff;
-    --panel: #f7f7f7;
+    --panel: #f6f6f6;
     --ink: #1a1a1a;
     --ink-2: #6b6b6b;
     --ink-3: #9a9a9a;
@@ -17,159 +20,133 @@
     --fill: rgba(0, 0, 0, 0.04);
     --fill-2: rgba(0, 0, 0, 0.06);
     --accent: #0a6cff;
-    --orange: #e8933a;
+    --mark: rgba(232, 147, 58, 0.35);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #141414;
-      --panel: #1b1b1b;
-      --ink: #f2f2f2;
-      --ink-2: #a3a3a3;
-      --ink-3: #6f6f6f;
-      --line: rgba(255, 255, 255, 0.12);
-      --fill: rgba(255, 255, 255, 0.05);
-      --fill-2: rgba(255, 255, 255, 0.08);
-      --accent: #5ea0ff;
+      --bg: #141414; --panel: #1c1c1c; --ink: #f2f2f2; --ink-2: #a3a3a3; --ink-3: #6f6f6f;
+      --line: rgba(255, 255, 255, 0.12); --fill: rgba(255, 255, 255, 0.05); --fill-2: rgba(255, 255, 255, 0.08);
+      --accent: #5ea0ff; --mark: rgba(232, 147, 58, 0.45);
     }
   }
   :root[data-theme="dark"] {
-    --bg: #141414;
-    --panel: #1b1b1b;
-    --ink: #f2f2f2;
-    --ink-2: #a3a3a3;
-    --ink-3: #6f6f6f;
-    --line: rgba(255, 255, 255, 0.12);
-    --fill: rgba(255, 255, 255, 0.05);
-    --fill-2: rgba(255, 255, 255, 0.08);
-    --accent: #5ea0ff;
+    --bg: #141414; --panel: #1c1c1c; --ink: #f2f2f2; --ink-2: #a3a3a3; --ink-3: #6f6f6f;
+    --line: rgba(255, 255, 255, 0.12); --fill: rgba(255, 255, 255, 0.05); --fill-2: rgba(255, 255, 255, 0.08);
+    --accent: #5ea0ff; --mark: rgba(232, 147, 58, 0.45);
   }
 
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--ink);
+    margin: 0; background: var(--bg); color: var(--ink);
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
-    font-size: 15px;
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
+    font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
   a { color: var(--accent); text-decoration: none; }
   a:hover { text-decoration: underline; }
-  code, pre, .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  pre, .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; }
   .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
 
-  nav {
-    display: flex; align-items: center; justify-content: space-between;
-    height: 56px;
-  }
-  nav .brand { font-weight: 700; font-size: 15px; color: var(--ink); letter-spacing: -0.01em; }
+  /* Nav */
+  nav { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 16px; }
+  nav .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; color: var(--ink); }
+  nav .brand img { width: 28px; height: 28px; border-radius: 7px; display: block; }
+  nav .right { display: flex; align-items: center; gap: 22px; }
   nav .links { display: flex; gap: 20px; font-size: 13px; font-weight: 500; }
   nav .links a { color: var(--ink-2); }
   nav .links a:hover { color: var(--ink); text-decoration: none; }
 
-  .hero {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    overflow: hidden;
-    margin-top: 12px;
-  }
-  .hero .art {
-    background: var(--panel);
-    display: flex; align-items: center; justify-content: center;
-    min-height: 420px;
-    padding: 24px;
-  }
-  .hero pre {
-    margin: 0;
-    font-size: 10.5px;
-    line-height: 1.15;
-    font-weight: 900;
-    color: var(--ink);
-    letter-spacing: 0;
-    white-space: pre;
-    user-select: none;
-  }
-  .hero .copy {
-    padding: 48px 40px;
-    display: flex; flex-direction: column; justify-content: center; gap: 16px;
-  }
-  .hero h1 { font-size: 34px; font-weight: 700; letter-spacing: -0.02em; margin: 0; line-height: 1.1; }
-  .hero .sub { font-size: 15px; color: var(--ink-2); font-weight: 500; margin: 0; }
-  .hero p { margin: 0; color: var(--ink-2); }
-  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
   .btn {
     display: inline-flex; align-items: center; gap: 8px;
-    padding: 10px 16px;
-    border-radius: 6px;
-    font-size: 13px; font-weight: 600;
-    text-decoration: none !important;
-    border: 0; cursor: pointer;
+    padding: 10px 16px; border-radius: 6px;
+    font-size: 13px; font-weight: 600; text-decoration: none !important; border: 0; cursor: pointer;
+    white-space: nowrap;
   }
   .btn.primary { background: var(--ink); color: var(--bg); }
   .btn.primary:hover { opacity: 0.88; }
   .btn.secondary { background: var(--fill-2); color: var(--ink); }
   .btn.secondary:hover { background: var(--fill); }
-  .meta { font-size: 12px; color: var(--ink-3); }
-  .meta .mono { color: var(--ink-2); }
+  .btn.lg { padding: 13px 22px; font-size: 14px; }
 
-  .label {
-    font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
-    color: var(--ink-3); text-transform: uppercase; margin: 0 0 12px;
+  /* Hero */
+  .hero { padding: 56px 0 40px; }
+  .hero h1 {
+    font-size: clamp(40px, 7.2vw, 76px); font-weight: 700; letter-spacing: -0.035em; line-height: 1.02; margin: 0;
   }
-  section { margin-top: 64px; }
-  h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; margin: 0 0 20px; }
+  .hero h1 mark { background: linear-gradient(transparent 55%, var(--mark) 55%); color: inherit; padding: 0 0.04em; }
+  .hero .row { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; margin-top: 32px; }
+  .badge { display: flex; flex-direction: column; line-height: 1.2; }
+  .badge small { font-size: 11px; color: var(--ink-3); font-weight: 500; }
+  .badge span { font-size: 14px; font-weight: 600; color: var(--ink-2); }
 
-  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-  .card {
-    border: 1px solid var(--line); border-radius: 8px;
-    padding: 18px;
+  /* Window mock */
+  .window {
+    margin-top: 48px;
+    border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
     background: var(--bg);
+    box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.25);
   }
-  .card .k { font-size: 11px; color: var(--ink-3); margin-bottom: 8px; }
-  .card h3 { font-size: 14px; font-weight: 600; margin: 0 0 6px; }
-  .card p { font-size: 13px; color: var(--ink-2); margin: 0; }
-
-  .steps { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .step { border: 1px solid var(--line); border-radius: 8px; padding: 18px; }
-  .step .n { font-size: 11px; color: var(--ink-3); margin-bottom: 6px; }
-  .step h3 { font-size: 14px; font-weight: 600; margin: 0 0 6px; }
-  .step p { font-size: 13px; color: var(--ink-2); margin: 0; }
-  .step code {
-    font-size: 12px; background: var(--fill); padding: 2px 6px; border-radius: 4px; color: var(--ink);
+  .titlebar {
+    height: 38px; display: flex; align-items: center; padding: 0 14px; gap: 8px;
+    border-bottom: 1px solid var(--line); background: var(--bg);
   }
-  .note {
-    display: flex; gap: 10px; align-items: flex-start;
-    border: 1px solid rgba(232, 147, 58, 0.35);
-    background: rgba(232, 147, 58, 0.08);
-    border-radius: 8px; padding: 14px 16px; margin-top: 12px;
-    font-size: 13px; color: var(--ink-2);
-  }
-  .note b { color: var(--ink); font-weight: 600; }
-  .note .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--orange); margin-top: 6px; flex: none; }
-
-  .status {
-    display: flex; align-items: center; gap: 12px;
-    margin-top: 64px; padding: 10px 16px;
-    border-top: 1px solid var(--line);
-    font-size: 11px; font-weight: 500; color: var(--ink-3);
-  }
+  .titlebar .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--fill-2); }
+  .titlebar .title { margin-left: 6px; font-size: 12px; font-weight: 600; color: var(--ink-2); }
+  .panes { display: grid; grid-template-columns: 1fr 1fr; }
+  .pane-art { background: var(--panel); display: flex; align-items: center; justify-content: center; padding: 32px 16px; min-height: 380px; }
+  .pane-art pre { margin: 0; font-size: 8.5px; line-height: 1.15; font-weight: 900; color: var(--ink); user-select: none; }
+  .pane-form { padding: 40px 40px; display: flex; flex-direction: column; gap: 14px; justify-content: center; }
+  .pane-form .h { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+  .pane-form .s { font-size: 12px; color: var(--ink-2); font-weight: 500; margin-top: 2px; }
+  .lbl { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; color: var(--ink-3); text-transform: uppercase; margin-bottom: 5px; }
+  .field { font-size: 12px; padding: 8px 10px; background: var(--fill); border: 1px solid var(--line); border-radius: 6px; color: var(--ink); }
+  .field.placeholder { color: var(--ink-3); }
+  .switch { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 2px; background: var(--fill); border: 1px solid var(--line); border-radius: 7px; }
+  .switch div { text-align: center; font-size: 11px; font-weight: 500; padding: 5px; border-radius: 5px; color: var(--ink-2); }
+  .switch .on { background: var(--ink); color: var(--bg); font-weight: 600; }
+  .connect { text-align: center; font-size: 12px; font-weight: 600; padding: 8px; border-radius: 6px; background: var(--ink); color: var(--bg); }
+  .status { display: flex; align-items: center; gap: 8px; padding: 8px 20px; border-top: 1px solid var(--line); font-size: 10px; font-weight: 500; color: var(--ink-3); }
   .status .dot { width: 6px; height: 6px; border-radius: 50%; background: #34c759; }
   .status .mono { color: var(--ink-2); }
-  footer { padding: 24px 0 48px; font-size: 12px; color: var(--ink-3); }
-  footer p { margin: 4px 0; }
+
+  /* Features */
+  .features { display: grid; grid-template-columns: 1fr 1fr; gap: 56px 24px; padding: 88px 0 24px; }
+  .feature { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px; }
+  .feature pre { margin: 0; font-size: 8.5px; line-height: 1.15; font-weight: 900; color: var(--ink); height: 130px; display: flex; align-items: center; }
+  .feature h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; margin: 0; }
+  .feature p { margin: -8px 0 0; font-size: 13px; color: var(--ink-2); max-width: 320px; }
+
+  /* CTA */
+  .cta { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 72px 0 40px; text-align: center; }
+  .cta .meta { font-size: 12px; color: var(--ink-3); font-weight: 500; }
+  .cta .meta .mono { color: var(--ink-2); }
+  .cta .first { font-size: 12px; color: var(--ink-3); max-width: 520px; }
+  .cta .first b { color: var(--ink-2); font-weight: 600; }
+
+  /* Footer */
+  footer { padding: 40px 0 0; text-align: center; font-size: 12px; color: var(--ink-3); }
+  footer .dev { font-size: 13px; color: var(--ink-2); font-weight: 500; }
+  footer .dev a { color: var(--ink); font-weight: 600; }
+  footer .links { display: flex; justify-content: center; gap: 18px; margin-top: 10px; }
+  footer .links a { color: var(--ink-3); }
+  footer .links a:hover { color: var(--ink); text-decoration: none; }
+  footer p { margin: 6px 0; }
+  .wordmark {
+    margin-top: 40px; height: 0.62em; overflow: hidden;
+    font-size: clamp(64px, 15.5vw, 170px); font-weight: 800; letter-spacing: -0.05em; line-height: 1;
+    color: var(--fill-2); text-align: center; user-select: none;
+    -webkit-mask-image: linear-gradient(var(--ink), transparent 95%); mask-image: linear-gradient(black, transparent 95%);
+  }
 
   @media (max-width: 760px) {
-    .hero { grid-template-columns: 1fr; }
-    .hero .art { min-height: 300px; padding: 16px; }
-    .hero pre { font-size: 6.5px; }
-    .hero .copy { padding: 28px 20px 32px; }
-    .hero h1 { font-size: 28px; }
-    .grid, .steps { grid-template-columns: 1fr; }
-    nav .links { gap: 14px; }
+    nav .links { display: none; }
+    .hero { padding: 36px 0 28px; }
+    .panes { grid-template-columns: 1fr; }
+    .pane-art { min-height: 260px; }
+    .pane-art pre { font-size: 6.5px; }
+    .pane-form { padding: 28px 20px; }
+    .features { grid-template-columns: 1fr; gap: 44px; padding-top: 64px; }
   }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 </style>
@@ -177,73 +154,209 @@
 <body>
 <div class="wrap">
   <nav>
-    <a class="brand" href="#">IbexConnect</a>
-    <div class="links">
-      <a href="#features">Features</a>
-      <a href="#install">Install</a>
-      <a href="https://github.com/SattamAltwaim/IbexConnect">GitHub</a>
+    <a class="brand" href="#"><img src="assets/icon.png" srcset="assets/icon@2x.png 2x" alt="" width="28" height="28">IbexConnect</a>
+    <div class="right">
+      <div class="links">
+        <a href="#features">Features</a>
+        <a href="#install">Install</a>
+        <a href="https://github.com/SattamAltwaim/IbexConnect">GitHub</a>
+      </div>
+      <a class="btn primary" href="https://github.com/SattamAltwaim/IbexConnect/releases/latest/download/IbexConnect.zip">Download for Mac</a>
     </div>
   </nav>
 
-  <div class="hero">
-    <div class="art" aria-hidden="true"><pre id="logo"></pre></div>
-    <div class="copy">
-      <div>
-        <h1>IbexConnect</h1>
-        <p class="sub">GPU jobs on KAUST's Ibex cluster, from your Mac</p>
-      </div>
-      <p>See which GPUs are free, start a Jupyter session or a batch job, watch its output, and get a working <span class="mono">localhost</span> link — the SSH tunnel is handled for you.</p>
-      <div class="actions">
-        <a class="btn primary" id="download" href="https://github.com/SattamAltwaim/IbexConnect/releases/latest/download/IbexConnect.zip">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 1v7M3 5.5 6 8.5 9 5.5M1.5 10.5h9"/></svg>
-          Download for Mac
-        </a>
-        <a class="btn secondary" href="https://github.com/SattamAltwaim/IbexConnect">View source</a>
-      </div>
-      <div class="meta"><span id="version" class="mono">latest release</span> · macOS 15 or later · free</div>
+  <header class="hero">
+    <h1>GPU jobs on <mark>Ibex</mark>,<br>without the terminal.</h1>
+    <div class="row">
+      <a class="btn primary lg" href="https://github.com/SattamAltwaim/IbexConnect/releases/latest/download/IbexConnect.zip">
+        <svg width="13" height="13" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 1v7M3 5.5 6 8.5 9 5.5M1.5 10.5h9"/></svg>
+        Download for Mac
+      </a>
+      <div class="badge"><small>Free</small><span>Source on GitHub</span></div>
+      <div class="badge"><small>Requires</small><span>macOS 15 or later</span></div>
+      <div class="badge"><small>Made for</small><span>KAUST's Ibex cluster</span></div>
     </div>
-  </div>
 
-  <section id="features">
-    <p class="label">What it does</p>
-    <div class="grid">
-      <div class="card"><div class="k mono">sinfo</div><h3>Free GPUs at a glance</h3><p>Every GPU type on Ibex with how many are free right now, refreshed every 30 seconds, so you ask for what will actually start.</p></div>
-      <div class="card"><div class="k mono">jupyter</div><h3>Jupyter in one click</h3><p>Pick GPUs and a time limit. The app submits the job, waits for the node, opens the tunnel, and hands you a link with its token. Paste it into a browser or VS Code.</p></div>
-      <div class="card"><div class="k mono">sbatch</div><h3>Batch jobs</h3><p>GPUs, time, memory, CPUs, a command. Submitted the way the cluster likes it, with the queue reason explained in plain words while it waits.</p></div>
-      <div class="card"><div class="k mono">tail -F</div><h3>Live output</h3><p>Your job's stdout and stderr stream into the app as it runs. No more <code>cat slurm-123456.out</code>.</p></div>
-      <div class="card"><div class="k mono">rsync</div><h3>Uploads</h3><p>Copy a file or a folder from your Mac to your home on Ibex from the toolbar.</p></div>
-      <div class="card"><div class="k mono">ssh</div><h3>Knows why it failed</h3><p>No VPN, wrong password, unregistered key, changed host key — the login window tells you which, and what to do about it.</p></div>
+    <div class="window" aria-label="The IbexConnect login window">
+      <div class="titlebar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="title">IbexConnect</span></div>
+      <div class="panes">
+        <div class="pane-art" aria-hidden="true"><pre id="logo"></pre></div>
+        <div class="pane-form" aria-hidden="true">
+          <div><div class="h">IbexConnect</div><div class="s">Sign in to KAUST's Ibex cluster</div></div>
+          <div><div class="lbl">KAUST username</div><div class="field placeholder mono">username</div></div>
+          <div><div class="lbl">Sign in with</div><div class="switch"><div class="on">Password</div><div>SSH key</div></div></div>
+          <div><div class="lbl">KAUST password</div><div class="field placeholder mono">••••••••</div></div>
+          <div class="connect">Connect</div>
+        </div>
+      </div>
+      <div class="status"><span class="dot"></span><span class="mono">ibex</span><span>Connected</span></div>
+    </div>
+  </header>
+
+  <section class="features" id="features">
+    <div class="feature">
+      <pre aria-hidden="true">                    .#%#:
+.*#+   .+*#%%%%%#*+.:%@@+
+.#%*+#@@@@@@@@@@@@@@@#:
+  +%%#*+:.       .:+*#@%:
+ .+.                   .+.
+
+
+
+ .*#+.               .*#*.
+   +%@@@%###***###%@@@%+
+  .++:*#%@@@@@@@@@%#+.
+ +@@@@*    .:::.
+ .*%%#:</pre>
+      <h2>Jupyter in<br>one click</h2>
+      <p>Pick GPUs and a time limit. The app submits, waits for the node, opens the tunnel, and hands you a <span class="mono">localhost</span> link with its token.</p>
+    </div>
+    <div class="feature">
+      <pre aria-hidden="true">           #%%%%%%%%%%%%%#
+         .:%@@@@@@@@@@@@@@
+      :#@@%##*++%@@@@@@@@@
+    *@@#:+###%@@*.#@@@@@@@
+  .@@%:#@%*##..#@% :@@@@@@
+   %@%.@@: %@%#@@+:%@@@@@@
+   .@@#:@@+%@@@#:#@@*.*@@@
+    .#@%:*%#***%@@#. .*@@@
+      +%@%#%@%%*:.+#@@@@@@
+        .+####%@@@@@@@@@@@
+           #%%%%%%%%%%%%%#</pre>
+      <h2>Free GPUs<br>at a glance</h2>
+      <p>Every GPU type on Ibex with how many are free right now, refreshed every 30 seconds.</p>
+    </div>
+    <div class="feature">
+      <pre aria-hidden="true">             .::.
+             #@@#
+         :##:*%%*:##+
+      :*+:##:#%%#:##++*:
+      :#*+%%+*%%*+%%+*#:
+    **+%*:##:#%%#:##:*%++*
+  :.**+%#+%%+*%%#:%%+#%+**.:
+  *.::.#+            .:.:+.*
+.:+++:.@*:+  .+..+++.:++++++:.
+*@###*.@**@  +@+%@##:@%#%@##@*
+:%##@%.@**@  +@+%@  .@* #@ :@#
++%%%@%.@*+@%%%@:#%  .@* #% :@*
+...::::.:::::::.::.:::.::::::.
+:++*++++++++*++:::*++:++***++</pre>
+      <h2>Batch jobs,<br>queue explained</h2>
+      <p>GPUs, time, memory, CPUs, a command. While it waits, the queue reason in plain words instead of Slurm's.</p>
+    </div>
+    <div class="feature">
+      <pre aria-hidden="true">@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@                              @@
+@@                              @@
+@@   @@@                        @@
+@@    @@@@                      @@
+@@      @@@@                    @@
+@@        @@@    @@@@@@@@@@@    @@
+@@      @@@@                    @@
+@@    @@@@                      @@
+@@   @@@                        @@
+@@                              @@
+@@                              @@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</pre>
+      <h2>Live output<br>as it runs</h2>
+      <p>Your job's stdout and stderr stream into the app. No more hunting for <span class="mono">slurm-123456.out</span>.</p>
+    </div>
+    <div class="feature">
+      <pre aria-hidden="true">                .*%#+.
+              .#@@@@@@@#*
+            :#@@@@@@@@@@@*
+ :#%+     :%@@@@@@@@@@@@@#
++@@@@@#:+%@@@@@@%*.@@@@@@#
+ .#@@@@@@@@@@@#:   @@@@@@#
+   .@@@@@@@@#      @@@@@@#
+ .#@@@@@@@@@@@#:   @@@@@@#
++@@@@@#:+%@@@@@@%*.@@@@@@#
+ :#%+     :%@@@@@@@@@@@@@#
+            :#@@@@@@@@@@@*
+              .#@@@@@@@#*
+                .*%#+.</pre>
+      <h2>Paste the link<br>into VS Code</h2>
+      <p>The Jupyter link works in a browser or as a remote server in VS Code; a Copy Token button covers its password prompt.</p>
+    </div>
+    <div class="feature">
+      <pre aria-hidden="true">  @@@@@@@@@@@@
+ @@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@                              @@
+@@                              @@
+@@                              @@
+@@                              @@
+@@                              @@
+@@                              @@
+@@                              @@
+@@                              @@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</pre>
+      <h2>Upload files<br>to your home</h2>
+      <p>Copy a file or a folder from your Mac to Ibex from the toolbar.</p>
+    </div>
+    <div class="feature">
+      <pre aria-hidden="true">         @@@@@@@@@@
+       @@@@      @@@@
+      @@@          @@@
+      @@@          @@@
+      @@@          @@@
+      @@@          @@@
+  @@@@@@@@@@@@@@@@@@@@@@@@@@
+  @@@@@@@@@@@@@@@@@@@@@@@@@@
+  @@@@@@@@@@@  @@@@@@@@@@@@@
+  @@@@@@@@@@@  @@@@@@@@@@@@@
+  @@@@@@@@@@@@  @@@@@@@@@@@@
+  @@@@@@@@@@@@@@@@@@@@@@@@@@
+  @@@@@@@@@@@@@@@@@@@@@@@@@@</pre>
+      <h2>Password or key,<br>kept in your Keychain</h2>
+      <p>Sign in with your KAUST password, remembered in the macOS Keychain, or with an SSH key registered on Ibex.</p>
+    </div>
+    <div class="feature">
+      <pre aria-hidden="true">  @@@@@@@@@@@@@@@@@@@@@@@@@@
+  @@@                    @@@
+  @@@                    @@@
+  @@@        @@@@        @@@
+  @@@       @@@@@@       @@@
+   @@@      @@@@@@      @@@
+   @@@       @@@@       @@@
+    @@@               @@@
+     @@@             @@@
+      @@@           @@@
+        @@@       @@@
+          @@@   @@@
+            @@@@@</pre>
+      <h2>Knows when<br>you're off the VPN</h2>
+      <p>If sign-in fails the app says why: no VPN, wrong password, unregistered key, changed host key, and what to do about it.</p>
     </div>
   </section>
 
-  <section id="install">
-    <p class="label">Install</p>
-    <div class="steps">
-      <div class="step"><div class="n">1</div><h3>Download and unzip</h3><p>Drag <span class="mono">IbexConnect.app</span> to your Applications folder.</p></div>
-      <div class="step"><div class="n">2</div><h3>Open it the first time</h3><p>Right-click the app and choose <b>Open</b>. If macOS still refuses, go to <b>System Settings → Privacy & Security</b> and click <b>Open Anyway</b>. This is only needed once.</p></div>
-      <div class="step"><div class="n">3</div><h3>Sign in</h3><p>Your KAUST username and password (kept in your Keychain if you ask), or an SSH key already registered on Ibex.</p></div>
-      <div class="step"><div class="n">4</div><h3>Pick a GPU</h3><p>Choose <b>New Job</b>, pick what you need, and you're on the cluster.</p></div>
-    </div>
-    <div class="note"><span class="dot"></span><div><b>Off campus?</b> Ibex only accepts connections from inside KAUST. Connect to the KAUST VPN before signing in — the app will remind you if you forget.</div></div>
+  <section class="cta" id="install">
+    <a class="btn primary lg" href="https://github.com/SattamAltwaim/IbexConnect/releases/latest/download/IbexConnect.zip">
+      <svg width="13" height="13" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 1v7M3 5.5 6 8.5 9 5.5M1.5 10.5h9"/></svg>
+      Download for Mac
+    </a>
+    <div class="meta"><span id="version" class="mono">latest release</span> · macOS 15 or later</div>
+    <p class="first">Unzip, drag to Applications. <b>First launch:</b> right-click the app and choose Open, or allow it under System Settings → Privacy &amp; Security. Off campus, connect to the KAUST VPN first.</p>
   </section>
 
-  <div class="status">
-    <span class="dot"></span>
-    <span class="mono">ibex</span>
-    <span>Built with the system <span class="mono">ssh</span>. No accounts, no telemetry, nothing leaves your Mac except what you send to Ibex.</span>
-  </div>
   <footer>
-    <p>A personal project, not affiliated with KAUST. Ibex is operated by KAUST's Supercomputing Core Lab.</p>
-    <p><a href="https://github.com/SattamAltwaim/IbexConnect">Source on GitHub</a> · <a href="https://github.com/SattamAltwaim/IbexConnect/issues">Report a problem</a></p>
+    <p class="dev">Developed by <a href="https://x.com/SattamAltwaim">SattamAltwaim</a></p>
+    <div class="links">
+      <a href="https://github.com/SattamAltwaim/IbexConnect">GitHub</a>
+      <a href="https://github.com/SattamAltwaim/IbexConnect/issues">Report a problem</a>
+      <a href="https://x.com/SattamAltwaim">X</a>
+    </div>
+    <p>A personal project, not affiliated with KAUST. Jupyter, NVIDIA, Slurm and Visual Studio Code are trademarks of their owners.</p>
   </footer>
 </div>
+<div class="wordmark" aria-hidden="true">IbexConnect</div>
 
 <script>
 // The same ASCII animation as the app's login window: the KAUST logo
 // spins, dissolves into the Ibex, which gallops, then dissolves back.
 (async () => {
   const pre = document.getElementById("logo");
-  const COLS = 56, ROWS = 24, SS = 2;
+  const COLS = 50, ROWS = 22, SS = 2;
   const W = COLS * SS, H = ROWS * SS * 2;
   const RAMP = " .:+*#%@@";
   const PERIOD = 9, FPS = 12;
@@ -259,7 +372,6 @@
   try {
     [kaust, ibex] = await Promise.all([load("assets/kaust.svg"), load("assets/ibex.png")]);
   } catch (e) {
-    pre.textContent = "";
     return;
   }
 
@@ -368,7 +480,7 @@
   requestAnimationFrame(tick);
 })();
 
-// Show the version of the latest release next to the download button.
+// Version and size of the latest release, under the download button.
 fetch("https://api.github.com/repos/SattamAltwaim/IbexConnect/releases/latest")
   .then((r) => r.ok ? r.json() : null)
   .then((rel) => {
