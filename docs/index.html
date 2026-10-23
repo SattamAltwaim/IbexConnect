@@ -39,6 +39,9 @@
   .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
 
   /* Nav */
+  /* Everything above the window mock lines up with the window's edges:
+     the mock is 900px centred in the container, so inset by half the rest. */
+  nav, .hero > h1, .hero > .row { padding-inline: max(0px, calc((100% - 900px) / 2)); }
   nav { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 16px; }
   nav .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; color: var(--ink); }
   nav .brand img { width: 28px; height: 28px; border-radius: 7px; display: block; }
@@ -81,7 +84,10 @@
     height: 38px; display: flex; align-items: center; padding: 0 14px; gap: 8px;
     border-bottom: 1px solid var(--line); background: var(--bg);
   }
-  .titlebar .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--fill-2); }
+  .titlebar .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .titlebar .dot:nth-child(1) { background: #ff5f57; }
+  .titlebar .dot:nth-child(2) { background: #febc2e; }
+  .titlebar .dot:nth-child(3) { background: #28c840; }
   .titlebar .title { margin-left: 6px; font-size: 12px; font-weight: 600; color: var(--ink-2); }
   .panes { display: grid; grid-template-columns: 1fr 1fr; }
   .pane-art { background: var(--panel); display: flex; align-items: center; justify-content: center; padding: 32px 16px; min-height: 520px; }
