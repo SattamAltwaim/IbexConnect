@@ -17,20 +17,26 @@ struct LoginView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                header
-                form
-                if isConnecting {
-                    connecting
-                } else if let failure = vm.loginFailure {
-                    FailureCard(failure: failure)
+        HStack(spacing: 0) {
+            LogoMorphView(columns: 56, rows: 24, fontSize: 10)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.primary.opacity(0.03))
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    header
+                    form
+                    if isConnecting {
+                        connecting
+                    } else if let failure = vm.loginFailure {
+                        FailureCard(failure: failure)
+                    }
+                    footer
                 }
-                footer
+                .padding(.horizontal, 40)
+                .padding(.vertical, 48)
             }
-            .frame(width: 440)
-            .padding(.vertical, 48)
-            .frame(maxWidth: .infinity)
+            .frame(width: 480)
         }
         .background(Color(nsColor: .windowBackgroundColor))
         .preferredColorScheme(.light)

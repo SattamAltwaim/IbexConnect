@@ -73,12 +73,18 @@ struct DashboardView: View {
 
     private var header: some View {
         HStack(alignment: .bottom) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Ibex Connect")
-                    .font(.system(size: 28, weight: .bold))
-                Text("GPU jobs on KAUST's Ibex cluster")
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(.secondary)
+            HStack(alignment: .center, spacing: 20) {
+                // Sized to the title block beside it: nine 5pt rows come to
+                // about the 52pt the two lines of text take.
+                LogoMorphView(columns: 26, rows: 9, fontSize: 5)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Ibex Connect")
+                        .font(.system(size: 28, weight: .bold))
+                    Text("GPU jobs on KAUST's Ibex cluster")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(.secondary)
+                }
             }
 
             Spacer()
