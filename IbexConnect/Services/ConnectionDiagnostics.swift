@@ -22,7 +22,7 @@ nonisolated enum ConnectionDiagnostics {
             return LoginFailure(
                 kind: .keyMissing,
                 title: "No SSH key at \(shortKey)",
-                message: "Ibex Connect signs in with an SSH key, not a password. "
+                message: "IbexConnect signs in with an SSH key, not a password. "
                     + "Create one in Terminal and register it on Ibex, then try again.",
                 commands: [
                     LoginFailure.Command(

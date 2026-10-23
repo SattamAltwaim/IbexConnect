@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct Ibex_connectApp: App {
+struct IbexConnectApp: App {
     @State private var viewModel = AppViewModel()
 
     init() {

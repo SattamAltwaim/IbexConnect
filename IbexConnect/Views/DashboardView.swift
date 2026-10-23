@@ -79,7 +79,7 @@ struct DashboardView: View {
                 LogoMorphView(columns: 26, rows: 9, fontSize: 5)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Ibex Connect")
+                    Text("IbexConnect")
                         .font(.system(size: 28, weight: .bold))
                     Text("GPU jobs on KAUST's Ibex cluster")
                         .font(.system(size: 13, weight: .medium))

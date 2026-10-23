@@ -49,7 +49,7 @@ struct LoginView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("Ibex Connect")
+            Text("IbexConnect")
                 .font(.system(size: 28, weight: .bold))
             Text("Sign in to KAUST's Ibex cluster")
                 .font(.system(size: 13, weight: .medium))
