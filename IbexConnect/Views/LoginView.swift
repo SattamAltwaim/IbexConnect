@@ -170,13 +170,19 @@ struct LoginView: View {
     }
 
     private var footer: some View {
-        HStack(alignment: .top, spacing: 6) {
-            Image(systemName: "info.circle")
-                .font(.system(size: 11))
-            Text("Ibex only accepts connections from inside KAUST. Off campus, connect to the KAUST VPN first.")
-                .font(.system(size: 11))
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .top, spacing: 6) {
+                Image(systemName: "info.circle")
+                    .font(.system(size: 11))
+                Text("Ibex only accepts connections from inside KAUST. Off campus, connect to the KAUST VPN first.")
+                    .font(.system(size: 11))
+            }
+            .foregroundStyle(.tertiary)
+
+            if let update = vm.availableUpdate {
+                UpdateBadge(update: update)
+            }
         }
-        .foregroundStyle(.tertiary)
     }
 
     private func label(_ text: String) -> some View {

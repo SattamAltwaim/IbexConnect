@@ -22,6 +22,9 @@ final class AppViewModel {
     private(set) var showLogin = true
     private(set) var loginFailure: LoginFailure?
 
+    /// A newer release on GitHub, if the launch-time check found one.
+    private(set) var availableUpdate: AvailableUpdate?
+
     /// Job whose output is shown in the terminal panel.
     var selectedJobID: String?
 
@@ -64,6 +67,12 @@ final class AppViewModel {
     func onAppear() async {
         guard connection == .disconnected else { return }
         installSignalHandlers()
+        // Once per launch, off the critical path: the result just adds a
+        // line to the status bar.
+        Task { [weak self] in
+            let update = await UpdateChecker.check()
+            self?.availableUpdate = update
+        }
         guard config.hasAccount else { return }
         switch config.authMethod {
         case .key:
