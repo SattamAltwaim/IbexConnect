@@ -1,0 +1,54 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select the newest Xcode 26
+        run: |
+          xcode="$(ls -d /Applications/Xcode_26*.app | sort -V | tail -1)"
+          sudo xcode-select -s "$xcode"
+          xcodebuild -version
+
+      # Ad-hoc signed: there is no Developer ID in CI, so users get the
+      # right-click → Open dance on first launch. The marketing version
+      # follows the tag (v1.2.3 → 1.2.3) so About and the release agree.
+      - name: Build
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          case "$version" in
+            [0-9]*) ;;
+            *) version=0.0.0 ;;
+          esac
+          xcodebuild -project IbexConnect.xcodeproj -scheme IbexConnect -configuration Release \
+            -derivedDataPath build \
+            CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= PROVISIONING_PROFILE_SPECIFIER= \
+            MARKETING_VERSION="$version" \
+            build
+
+      - name: Zip the app
+        run: ditto -c -k --keepParent build/Build/Products/Release/IbexConnect.app IbexConnect.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: IbexConnect
+          path: IbexConnect.zip
+
+      - name: Publish the release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" IbexConnect.zip \
+            --title "IbexConnect $GITHUB_REF_NAME" \
+            --generate-notes
