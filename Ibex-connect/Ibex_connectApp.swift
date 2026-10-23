@@ -11,8 +11,17 @@ struct Ibex_connectApp: App {
 
     var body: some Scene {
         WindowGroup {
-            DashboardView()
-                .environment(viewModel)
+            Group {
+                if viewModel.showLogin {
+                    LoginView()
+                } else {
+                    DashboardView()
+                }
+            }
+            .environment(viewModel)
+            .task {
+                await viewModel.onAppear()
+            }
                 .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
                     // Tunnels and streams are closed; jobs keep running on the
                     // cluster and are re-adopted on next launch.

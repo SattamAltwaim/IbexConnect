@@ -6,7 +6,7 @@ struct FileTransferSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var localPath = ""
-    @State private var remotePath = "/home/tuuaimss/"
+    @State private var remotePath = ""
     @State private var showFilePicker = false
     @State private var isTransferring = false
     @State private var isDone = false
@@ -123,6 +123,11 @@ struct FileTransferSheet: View {
         }
         .padding(24)
         .frame(width: 440, height: 350)
+        .onAppear {
+            if remotePath.isEmpty {
+                remotePath = vm.remoteHome + "/"
+            }
+        }
         .fileImporter(
             isPresented: $showFilePicker,
             allowedContentTypes: [.folder, .item],

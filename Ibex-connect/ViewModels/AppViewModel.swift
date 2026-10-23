@@ -17,6 +17,11 @@ final class AppViewModel {
     var statusMessage = "Not connected"
     var error: IbexError?
 
+    /// The login window stays up until the first successful connection, and
+    /// comes back when the user signs out.
+    private(set) var showLogin = true
+    private(set) var loginFailure: LoginFailure?
+
     /// Job whose output is shown in the terminal panel.
     var selectedJobID: String?
 
@@ -31,7 +36,9 @@ final class AppViewModel {
     private var jobPollingTask: Task<Void, Never>?
     private var signalSources: [DispatchSourceSignal] = []
 
-    private static let recordsKey = "ibex-connect.submitted-jobs"
+    /// Submissions are remembered per account, so switching users doesn't
+    /// adopt someone else's jobs.
+    private var recordsKey: String { "ibex-connect.submitted-jobs.\(config.user)" }
 
     init() {
         let ssh = SSHService()
@@ -43,17 +50,44 @@ final class AppViewModel {
         jobs.first { $0.id == selectedJobID }
     }
 
+    var username: String { config.user }
+    var savedKeyPath: String { config.keyPath }
+    var hasSavedAccount: Bool { config.hasAccount }
+    var remoteHome: String { config.remoteHome }
+    var loginNode: String { config.loginNode }
+
     // MARK: - Connection
 
+    /// Called once when the window appears. With a saved account the app
+    /// signs in straight away; otherwise the login window waits for one.
     func onAppear() async {
         guard connection == .disconnected else { return }
         installSignalHandlers()
-        // Clear state a previous run may have left behind: a control master can
-        // still hold port forwards, and a force-quit can orphan tunnels. Both
-        // would keep local ports occupied.
-        await sshService.resetControlMaster()
-        await tunnelManager.reapOrphanedTunnels()
+        if config.hasAccount {
+            await connect()
+        }
+    }
+
+    /// Saves the account and connects with it.
+    func signIn(user: String, keyPath: String) async {
+        ClusterConfig.saveAccount(user: user, keyPath: keyPath)
         await connect()
+    }
+
+    /// Drops the connection and returns to the login window. Jobs keep
+    /// running on the cluster, as on quit.
+    func signOut() async {
+        stopPolling()
+        tunnelManager.destroyAllTunnels()
+        outputStreamer.detach()
+        await sshService.disconnect()
+        jobs = []
+        gpuList = []
+        selectedJobID = nil
+        connection = .disconnected
+        statusMessage = "Not connected"
+        loginFailure = nil
+        showLogin = true
     }
 
     /// Tears tunnels down when the app is killed rather than quit normally.
@@ -76,10 +110,17 @@ final class AppViewModel {
 
     func connect() async {
         connection = .connecting
+        loginFailure = nil
         statusMessage = "Connecting to \(config.loginNode)…"
+        // Clear state a previous run may have left behind: a control master can
+        // still hold port forwards, and a force-quit can orphan tunnels. Both
+        // would keep local ports occupied.
+        await sshService.resetControlMaster()
+        await tunnelManager.reapOrphanedTunnels()
         do {
             try await sshService.connect()
             connection = .connected
+            showLogin = false
             statusMessage = "Connected"
             await slurmService.cleanupStaleScripts()
             await adoptExistingJobs()
@@ -89,7 +130,19 @@ final class AppViewModel {
         } catch {
             connection = .disconnected
             statusMessage = "Connection failed"
-            self.error = (error as? IbexError) ?? .sshConnectionFailed(error.localizedDescription)
+            let stderr: String
+            if case .sshConnectionFailed(let msg) = error as? IbexError {
+                stderr = msg
+            } else {
+                stderr = error.localizedDescription
+            }
+            let failure = await ConnectionDiagnostics.diagnose(stderr: stderr, config: config)
+            loginFailure = failure
+            if !showLogin {
+                // Reconnecting from the dashboard: there is no login window to
+                // show the diagnosis, so it goes through the alert instead.
+                self.error = .sshConnectionFailed("\(failure.title). \(failure.message)")
+            }
         }
     }
 
@@ -442,7 +495,7 @@ final class AppViewModel {
     // MARK: - Persistence
 
     private func loadRecords() -> [JobRecord] {
-        guard let data = UserDefaults.standard.data(forKey: Self.recordsKey),
+        guard let data = UserDefaults.standard.data(forKey: recordsKey),
               let records = try? JSONDecoder().decode([JobRecord].self, from: data)
         else { return [] }
         return records
@@ -453,14 +506,14 @@ final class AppViewModel {
         records.append(record)
         records = Array(records.suffix(25))
         if let data = try? JSONEncoder().encode(records) {
-            UserDefaults.standard.set(data, forKey: Self.recordsKey)
+            UserDefaults.standard.set(data, forKey: recordsKey)
         }
     }
 
     private func deleteRecord(id: String) {
         let records = loadRecords().filter { $0.id != id }
         if let data = try? JSONEncoder().encode(records) {
-            UserDefaults.standard.set(data, forKey: Self.recordsKey)
+            UserDefaults.standard.set(data, forKey: recordsKey)
         }
     }
 

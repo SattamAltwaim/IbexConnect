@@ -43,9 +43,6 @@ struct DashboardView: View {
             ConnectionStatusBar()
         }
         .background(Color(nsColor: .windowBackgroundColor))
-        .task {
-            await vm.onAppear()
-        }
         .onChange(of: vm.selectedJobID) { _, newValue in
             if newValue != nil, !isOutputVisible {
                 withAnimation(.easeInOut(duration: 0.2)) {
@@ -87,6 +84,16 @@ struct DashboardView: View {
             Spacer()
 
             HStack(spacing: 8) {
+                Button {
+                    Task { await vm.signOut() }
+                } label: {
+                    Image(systemName: "rectangle.portrait.and.arrow.right")
+                        .font(.system(size: 13, weight: .medium))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.secondary)
+                .help("Sign out of \(vm.username) and go back to the login window. Jobs keep running on the cluster.")
+
                 Button {
                     Task { await vm.refreshAll() }
                 } label: {

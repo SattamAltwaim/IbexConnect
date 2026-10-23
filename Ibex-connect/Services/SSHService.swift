@@ -49,7 +49,9 @@ actor SSHService {
         let connectArgs = config.sshRunArgs + ["echo connected"]
         let result = try await Self.execute(path: "/usr/bin/ssh", arguments: connectArgs)
         if result.exitCode != 0 {
-            throw IbexError.sshConnectionFailed(Self.friendlySSHError(result.stderr))
+            // Raw stderr: ConnectionDiagnostics reads it to work out what
+            // went wrong, so it must not be reworded here.
+            throw IbexError.sshConnectionFailed(result.stderr.trimmingCharacters(in: .whitespacesAndNewlines))
         }
     }
 
@@ -75,20 +77,6 @@ actor SSHService {
     nonisolated static func stripBanner(_ output: String, marker: String) -> String {
         guard let range = output.range(of: marker) else { return output }
         return output[range.upperBound...].trimmingCharacters(in: .newlines)
-    }
-
-    nonisolated static func friendlySSHError(_ stderr: String) -> String {
-        let err = stderr.trimmingCharacters(in: .whitespacesAndNewlines)
-        if err.contains("Permission denied") {
-            return "The cluster rejected the SSH key at ~/.ssh/id_ed25519. Make sure this key is registered on Ibex."
-        }
-        if err.contains("timed out") || err.contains("Operation timed out") {
-            return "Could not reach ilogin.ibex.kaust.edu.sa. Check your network or VPN connection."
-        }
-        if err.contains("Could not resolve hostname") {
-            return "Could not resolve ilogin.ibex.kaust.edu.sa. Check your internet connection."
-        }
-        return err.isEmpty ? "Unknown SSH error." : err
     }
 
     // MARK: - Process execution

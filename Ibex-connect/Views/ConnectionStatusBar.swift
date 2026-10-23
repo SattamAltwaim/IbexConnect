@@ -65,7 +65,7 @@ struct ConnectionStatusBar: View {
 
     private var connectionLabel: String {
         switch vm.connection {
-        case .connected: "ibex"
+        case .connected: "\(vm.username)@ibex"
         case .connecting: "connecting"
         case .disconnected: "offline"
         }

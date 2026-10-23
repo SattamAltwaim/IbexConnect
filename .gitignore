@@ -1,0 +1,14 @@
+# Xcode
+xcuserdata/
+DerivedData/
+build/
+*.xcuserstate
+
+# macOS
+.DS_Store
+
+# Claude Code local permissions (command history can contain tokens)
+.claude/settings.local.json
+
+# scratch
+tt.txt
