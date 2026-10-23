@@ -93,6 +93,7 @@ actor SSHService {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: path)
         process.arguments = arguments
+        process.environment = ClusterConfig().sshEnvironment
 
         let stdoutPipe = Pipe()
         let stderrPipe = Pipe()

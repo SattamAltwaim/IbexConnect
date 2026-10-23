@@ -18,12 +18,21 @@ nonisolated enum ConnectionDiagnostics {
             command: "ssh-copy-id -i \(shortKey).pub \(config.sshTarget)"
         )
 
-        if !FileManager.default.fileExists(atPath: keyPath) {
+        if config.authMethod == .password, err.contains("Permission denied") {
+            return LoginFailure(
+                kind: .passwordRejected,
+                title: "Ibex rejected the password",
+                message: "Check the username and your KAUST password. If you changed the password "
+                    + "recently, sign in again with the new one."
+            )
+        }
+
+        if config.authMethod == .key, !FileManager.default.fileExists(atPath: keyPath) {
             return LoginFailure(
                 kind: .keyMissing,
                 title: "No SSH key at \(shortKey)",
-                message: "IbexConnect signs in with an SSH key, not a password. "
-                    + "Create one in Terminal and register it on Ibex, then try again.",
+                message: "Create one in Terminal and register it on Ibex, then try again — "
+                    + "or switch to signing in with your password.",
                 commands: [
                     LoginFailure.Command(
                         label: "Create a key",

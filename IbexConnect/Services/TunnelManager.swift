@@ -34,6 +34,7 @@ final class TunnelManager {
             "-L", "\(localPort):\(remoteHost):\(remotePort)",
             config.sshTarget
         ]
+        process.environment = config.sshEnvironment
         process.standardInput = FileHandle.nullDevice
         process.standardOutput = FileHandle.nullDevice
 

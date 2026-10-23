@@ -51,6 +51,7 @@ final class AppViewModel {
     }
 
     var username: String { config.user }
+    var authMethod: AuthMethod { config.authMethod }
     var savedKeyPath: String { config.keyPath }
     var hasSavedAccount: Bool { config.hasAccount }
     var remoteHome: String { config.remoteHome }
@@ -63,14 +64,40 @@ final class AppViewModel {
     func onAppear() async {
         guard connection == .disconnected else { return }
         installSignalHandlers()
-        if config.hasAccount {
+        guard config.hasAccount else { return }
+        switch config.authMethod {
+        case .key:
+            await connect()
+        case .password:
+            // Off the main actor: the Keychain may put up a prompt.
+            let user = config.user
+            let saved = await Task.detached { Keychain.password(for: user) }.value
+            guard let saved else { return }
+            SessionPassword.current = saved
             await connect()
         }
     }
 
     /// Saves the account and connects with it.
     func signIn(user: String, keyPath: String) async {
-        ClusterConfig.saveAccount(user: user, keyPath: keyPath)
+        ClusterConfig.saveAccount(user: user, authMethod: .key, keyPath: keyPath)
+        SessionPassword.current = nil
+        await connect()
+    }
+
+    /// Saves the account, keeps the password for this session (and in the
+    /// Keychain when asked), and connects with it.
+    func signIn(user: String, password: String, remember: Bool) async {
+        ClusterConfig.saveAccount(user: user, authMethod: .password)
+        SessionPassword.current = password
+        let account = config.user
+        await Task.detached {
+            if remember {
+                Keychain.savePassword(password, for: account)
+            } else {
+                Keychain.deletePassword(for: account)
+            }
+        }.value
         await connect()
     }
 
@@ -81,6 +108,9 @@ final class AppViewModel {
         tunnelManager.destroyAllTunnels()
         outputStreamer.detach()
         await sshService.disconnect()
+        SessionPassword.current = nil
+        let account = config.user
+        await Task.detached { Keychain.deletePassword(for: account) }.value
         jobs = []
         gpuList = []
         selectedJobID = nil

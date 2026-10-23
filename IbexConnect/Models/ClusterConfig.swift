@@ -9,6 +9,7 @@ nonisolated struct ClusterConfig: Sendable {
     static let defaultKeyPath = "\(NSHomeDirectory())/.ssh/id_ed25519"
 
     private static let userKey = "ibex-connect.username"
+    private static let authMethodKey = "ibex-connect.auth-method"
     private static let keyPathKey = "ibex-connect.ssh-key-path"
 
     /// The account the login window saved. Read on every access rather than
@@ -18,6 +19,12 @@ nonisolated struct ClusterConfig: Sendable {
         UserDefaults.standard.string(forKey: Self.userKey) ?? ""
     }
 
+    /// Password unless the user chose a key: new users have a KAUST
+    /// password, and most don't have a key registered on Ibex yet.
+    var authMethod: AuthMethod {
+        AuthMethod(rawValue: UserDefaults.standard.string(forKey: Self.authMethodKey) ?? "") ?? .password
+    }
+
     var keyPath: String {
         let saved = UserDefaults.standard.string(forKey: Self.keyPathKey) ?? ""
         return saved.isEmpty ? Self.defaultKeyPath : saved
@@ -25,11 +32,46 @@ nonisolated struct ClusterConfig: Sendable {
 
     var hasAccount: Bool { !user.isEmpty }
 
-    static func saveAccount(user: String, keyPath: String) {
+    static func saveAccount(user: String, authMethod: AuthMethod, keyPath: String? = nil) {
         let defaults = UserDefaults.standard
         defaults.set(user.trimmingCharacters(in: .whitespacesAndNewlines), forKey: userKey)
-        let path = keyPath.trimmingCharacters(in: .whitespacesAndNewlines)
-        defaults.set(path == defaultKeyPath ? "" : path, forKey: keyPathKey)
+        defaults.set(authMethod.rawValue, forKey: authMethodKey)
+        if let keyPath {
+            let path = keyPath.trimmingCharacters(in: .whitespacesAndNewlines)
+            defaults.set(path == defaultKeyPath ? "" : path, forKey: keyPathKey)
+        }
+    }
+
+    /// Environment for every ssh (and scp/rsync, whose ssh inherits it).
+    /// With a password, ssh is pointed at the askpass helper and the
+    /// password rides along in a variable the helper prints.
+    var sshEnvironment: [String: String] {
+        var environment = ProcessInfo.processInfo.environment
+        environment.removeValue(forKey: "SSH_ASKPASS")
+        environment.removeValue(forKey: "SSH_ASKPASS_REQUIRE")
+        guard authMethod == .password,
+              let password = SessionPassword.current,
+              let helper = AskpassHelper.path
+        else { return environment }
+        environment["SSH_ASKPASS"] = helper
+        environment["SSH_ASKPASS_REQUIRE"] = "force"
+        environment[AskpassHelper.passwordVariable] = password
+        return environment
+    }
+
+    /// How ssh authenticates. BatchMode is only for keys: it switches off
+    /// every prompt, the askpass one included.
+    private var authArgs: [String] {
+        switch authMethod {
+        case .key:
+            ["-o", "BatchMode=yes", "-i", keyPath]
+        case .password:
+            [
+                "-o", "PubkeyAuthentication=no",
+                "-o", "PreferredAuthentications=keyboard-interactive,password",
+                "-o", "NumberOfPasswordPrompts=1",
+            ]
+        }
     }
 
     var remoteHome: String { "/home/\(user)" }
@@ -45,8 +87,7 @@ nonisolated struct ClusterConfig: Sendable {
     }
 
     var sshBaseArgs: [String] {
-        [
-            "-o", "BatchMode=yes",
+        authArgs + [
             "-o", "ConnectTimeout=\(connectTimeout)",
             "-o", "LogLevel=ERROR",
             "-o", "ControlMaster=auto",
@@ -55,7 +96,6 @@ nonisolated struct ClusterConfig: Sendable {
             "-o", "StrictHostKeyChecking=accept-new",
             "-o", "ServerAliveInterval=30",
             "-o", "ServerAliveCountMax=3",
-            "-i", keyPath,
         ]
     }
 
@@ -69,8 +109,7 @@ nonisolated struct ClusterConfig: Sendable {
     /// about the tunnel, and the forward outlives the app. A dedicated
     /// connection ties the forward to the process we actually supervise.
     var sshTunnelArgs: [String] {
-        [
-            "-o", "BatchMode=yes",
+        authArgs + [
             "-o", "ConnectTimeout=\(connectTimeout)",
             "-o", "LogLevel=ERROR",
             "-o", "ControlMaster=no",
@@ -79,7 +118,6 @@ nonisolated struct ClusterConfig: Sendable {
             "-o", "ExitOnForwardFailure=yes",
             "-o", "ServerAliveInterval=30",
             "-o", "ServerAliveCountMax=3",
-            "-i", keyPath,
         ]
     }
 }

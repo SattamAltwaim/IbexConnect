@@ -34,6 +34,7 @@ final class OutputStreamer {
         // -n: no stdin; 2>/dev/null on the remote side hides tail's
         // "cannot open" complaints while the job is still queued.
         process.arguments = config.sshRunArgs + ["tail -n +1 -F \(remotePath) 2>/dev/null"]
+        process.environment = config.sshEnvironment
         process.standardInput = FileHandle.nullDevice
         process.standardError = FileHandle.nullDevice
 

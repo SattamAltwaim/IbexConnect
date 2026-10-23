@@ -9,6 +9,7 @@ nonisolated struct LoginFailure: Sendable, Equatable {
         case vpn
         /// The login node's name doesn't resolve: no internet at all.
         case offline
+        case passwordRejected
         case keyMissing
         case keyRejected
         case hostKeyChanged
